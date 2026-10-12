@@ -1,2 +1,3 @@
 # Thoth
+
 Tarot readings tracker
