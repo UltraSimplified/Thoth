@@ -2,14 +2,16 @@
 import BirthBadge from '@/components/cards/BirthBadge.vue';
 import CardImage from '@/components/cards/CardImage.vue';
 import ReplaceableCardImage from '@/components/cards/ReplaceableCardImage.vue';
+import ZoomableCardImage from '@/components/cards/ZoomableCardImage.vue';
 import CardNote from '@/components/cards/CardNote.vue';
 import JournalLink from '@/components/day/JournalLink.vue';
 import TreeOfLife from '@/components/tree/TreeOfLife.vue';
+import TreeSummary from '@/components/tree/TreeSummary.vue';
 import { show as showSettings } from '@/actions/App/Http/Controllers/SettingsController';
 import { capitalise, zodiacSpanLabel } from '@/lib/cards';
 import type { CardData, DayPageProps, ReadingData } from '@/types/deck';
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     reading: ReadingData;
@@ -24,6 +26,9 @@ const hasBirthPositions = computed(
     () =>
         props.tree.birth.nodes.length > 0 || props.tree.birth.paths.length > 0,
 );
+
+/** The tree point or path under the pointer, which lights its line in the text key. */
+const hovered = ref<string | null>(null);
 
 function attributions(card: CardData): string[] {
     return [
@@ -57,18 +62,18 @@ function attributions(card: CardData): string[] {
                 <li
                     v-for="jumper in reading.jumpers"
                     :key="jumper.id"
-                    class="w-14"
+                    class="w-24 md:w-14"
                 >
-                    <CardImage :card="jumper" size="thumbnail" />
+                    <ZoomableCardImage :card="jumper" size="thumbnail" />
                     <p
-                        class="mt-0.5 truncate text-center text-[10px] text-muted"
+                        class="mt-0.5 text-center text-xs leading-snug text-muted md:truncate md:text-[10px]"
                     >
                         Jumper: {{ jumper.name }}
                     </p>
                 </li>
             </ul>
 
-            <div class="mx-auto w-44 md:w-full">
+            <div class="mx-auto w-72 max-w-full md:w-full">
                 <ReplaceableCardImage
                     v-if="replaceableImage"
                     :card="reading.card"
@@ -85,11 +90,11 @@ function attributions(card: CardData): string[] {
                 <li
                     v-for="clarifier in reading.clarifiers"
                     :key="clarifier.id"
-                    class="w-14"
+                    class="w-24 md:w-14"
                 >
-                    <CardImage :card="clarifier" size="thumbnail" />
+                    <ZoomableCardImage :card="clarifier" size="thumbnail" />
                     <p
-                        class="mt-0.5 truncate text-center text-[10px] text-muted"
+                        class="mt-0.5 text-center text-xs leading-snug text-muted md:truncate md:text-[10px]"
                     >
                         Clarifier: {{ clarifier.name }}
                     </p>
@@ -159,6 +164,7 @@ function attributions(card: CardData): string[] {
                     :clarifiers="tree.clarifiers"
                     :birth="tree.birth"
                     label="Tree of Life showing this day's cards"
+                    @hover="hovered = $event"
                 />
                 <ul class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
                     <li>Solid: main card</li>
@@ -177,6 +183,7 @@ function attributions(card: CardData): string[] {
                     >
                     to outline your birth cards on the tree.
                 </p>
+                <TreeSummary :elements="tree.elements" :hovered="hovered" />
             </section>
         </div>
     </div>

@@ -268,14 +268,14 @@ function resonanceLabel(resonated: boolean | null): string {
                                     :src="cell.card.thumbnailUrl"
                                     :alt="cell.card.name"
                                     loading="lazy"
-                                    class="hidden aspect-[3/5] w-full rounded-sm object-cover md:block"
+                                    class="aspect-[3/5] w-full rounded-sm object-cover"
                                 />
                                 <img
                                     v-else-if="cell.isFuture"
                                     :src="cardBackUrl"
                                     alt=""
                                     aria-hidden="true"
-                                    class="hidden aspect-[3/5] w-full rounded-sm object-cover opacity-30 md:block"
+                                    class="aspect-[3/5] w-full rounded-sm object-cover opacity-30"
                                 />
                                 <span
                                     class="mt-auto flex flex-wrap gap-0.5 text-[10px] leading-none text-muted"

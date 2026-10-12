@@ -46,13 +46,11 @@ class DayController extends Controller
     }
 
     /**
-     * Save the outcome, resonance and themes.
+     * Save the outcome, resonance and themes. These have no lock, so any day's evening can be edited.
      */
     public function updateEvening(SaveEveningRequest $request, string $date, DayWriter $writer): RedirectResponse
     {
         $day = $this->dateFrom($date);
-
-        Gate::authorize('updateEvening', $this->dayFor($day));
 
         $writer->saveEvening($day, $request->eveningData());
 

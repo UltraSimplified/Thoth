@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Day;
-use App\Models\Theme;
 use Carbon\CarbonImmutable;
 
 /**
@@ -41,12 +40,9 @@ final class DayPage
             'day' => $day === null ? null : $this->dayData($day, $birthRoles),
             'locks' => [
                 'morning' => $lockDay->isLockedOn($today),
-                'evening' => $lockDay->isEveningLockedOn($today),
                 'morningUntil' => $lockDay->editableUntil(Day::MORNING_EDIT_DAYS),
-                'eveningUntil' => $lockDay->editableUntil(Day::EVENING_EDIT_DAYS),
             ],
             'cards' => $this->cards->all(),
-            'themeNames' => Theme::query()->orderBy('name')->pluck('name')->values(),
             'tree' => $this->treeData($day),
             'journalUrl' => 'https://750words.com/account/stats/'.$date->toDateString(),
             'showJournalReminder' => ! $this->settings->journalTimezoneConfirmed(),
@@ -81,19 +77,34 @@ final class DayPage
 
     /**
      * Highlights for the compact Tree on the day page: the main card lit, jumpers and clarifiers faint,
-     * and the birth positions outlined.
+     * and the birth positions outlined. Also each highlighted element, named, for the text key beside the tree.
      *
-     * @return array<string, array{nodes: list<string>, paths: list<int>}>
+     * @return array<string, mixed>
      */
     private function treeData(?Day $day): array
     {
         $reading = $day?->reading;
+
+        $elements = [];
+
+        if ($reading !== null) {
+            $elements[] = $this->tree->elementFor($reading->card, 'main', 'Main card');
+
+            foreach ($reading->jumpers as $entry) {
+                $elements[] = $this->tree->elementFor($entry->card, 'jumper', 'Jumper');
+            }
+
+            foreach ($reading->clarifiers as $entry) {
+                $elements[] = $this->tree->elementFor($entry->card, 'clarifier', 'Clarifier');
+            }
+        }
 
         return [
             'main' => $this->tree->highlightsFor($reading ? [$reading->card] : []),
             'jumpers' => $this->tree->highlightsFor($reading?->jumpers->pluck('card') ?? []),
             'clarifiers' => $this->tree->highlightsFor($reading?->clarifiers->pluck('card') ?? []),
             'birth' => $this->tree->highlightsFor(array_column($this->cards->birthEntries(), 'card')),
+            'elements' => [...$elements, ...$this->cards->birthElements($this->tree)],
         ];
     }
 }

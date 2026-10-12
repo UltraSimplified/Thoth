@@ -37,12 +37,12 @@ The app runs as a web app (Laravel + Vue 3 via Inertia) and is packaged for Andr
 
 ## 3. Core Concepts
 
-- **Day**: one calendar date (local time). Holds the event note, the outcome note, the resonance answer, the themes and the 750words link. A day can exist without a card (a note-only day).
+- **Day**: one calendar date (local time). Holds the event note, the outcome note, the resonance answer and the 750words link. A day can exist without a card (a note-only day).
 - **Reading**: the main card drawn on a day, with an optional question and interpretation notes. One per day.
 - **Jumper**: a card that jumps out of the deck while shuffling, before the main card is picked. A reading can have any number of jumpers, kept in the order they appeared. Jumpers are recorded separately from clarifiers because they come before the draw rather than qualifying it.
 - **Clarifier**: an extra card drawn on the same day to clarify the main card. A reading can have any number of clarifiers, kept in the order drawn.
 - **Card**: one of the 78 cards of the Thoth deck, seeded once with its full attributions (section 3.1).
-- **Theme**: a free-form tag describing the broad theme of a day, added in hindsight (section 4.7).
+- **Theme**: a free-form tag describing the broad theme of a day. Not recorded at present: the evening section no longer offers it (section 4.7), and whether tags return is still open.
 - **Birth cards**: your personal significators calculated from your date of birth, set once in settings (section 4.4).
 
 ### 3.1 Card attributions
@@ -138,6 +138,7 @@ Crowley's exchange of The Emperor (Tzaddi) and The Star (Heh) is the default. A 
 
 - **Card page:** a full-size tree. Tapping a sephira or path shows its name, number, letter and every card that sits there (for example, Binah holds the four Threes and the four Queens).
 - **Today screen and day pages:** a compact tree beside the card with the main card's position lit. Jumpers and clarifiers are shown as fainter highlights in two distinct styles.
+- **Text key:** beneath the tree on the Today screen, day pages and card page, one line per highlighted element. Variable elements come first (the day's cards, or "This card" on a card page), then a "Fixed" block with the six birth positions. Each line gives the card, its position, and the Hebrew name of the sephira or path in italics. Hovering a point or path on the tree lights its line in the key.
 - **Statistics:** a tree heat map (see 6.2).
 - **Birth cards:** the positions of all your birth cards are permanently outlined on every tree (section 4.4).
 
@@ -147,6 +148,7 @@ Crowley's exchange of The Emperor (Tzaddi) and The Star (Heh) is the default. A 
 - `Sephira` is a PHP backed enum with number, name, pillar and triad, exported to TypeScript.
 - A single Vue `TreeOfLife.vue` component renders the SVG from a fixed coordinate map. It takes props for highlighted nodes and paths, faint highlights for jumpers and clarifiers, outlined birth positions, an optional heat value per node and path, and a size.
 - Every node and path has an accessible label, and the heat map has a table alternative.
+- The text key is `TreeSummary.vue`. `TreeOfLife.vue` emits the key of the point or path under the pointer or keyboard focus (for example `binah` or `path-15`), and the key lights each matching line.
 
 ### 4.4 Birth cards
 
@@ -180,34 +182,35 @@ The core daily flow, built on the card picker, the tree and the journal link.
 - Question (optional, asked before drawing)
 - "Add jumper" for any card that jumps out while shuffling, using the same picker as the main card
 - Card picker: tabs for Majors, Wands, Cups, Swords and Disks showing card thumbnails, with a search box above them that matches names, titles and numbers ("aeon", "5 wands", "prudence")
+- Once a card is chosen, a link to its thothreadings reading appears under it
 - "Add clarifier" to pick further cards, each through the same picker
 - Event to observe (single line, optional, max 255 chars)
 - Interpretation notes (optional)
 
-**After saving:** the card image, name, title, suit and element, the Tree of Life with the card's position lit, jumpers shown smaller above the main card and clarifiers smaller beneath it, your notes on the card (4.2), the thothreadings button and the 750words button, the question and the event note.
+**After saving:** the card image, name, title, suit and element, the Tree of Life with the card's position lit, jumpers above the main card and clarifiers beneath it as thumbnails, each of which opens its card full screen when tapped so the detail can be read (on phones the main card fills most of the width), your notes on the card (4.2), the thothreadings button and the 750words button, the question and the event note.
 
 **No draw today:** the event note and journal link can be filled in without a card.
 
 Each day also has its own page (`/days/{date}`) showing the same content, used by the calendar and lists later.
 
-### 4.7 Evening section: outcomes, resonance and themes
+### 4.7 Evening section: outcomes and resonance
 
 Built once logging works, since it completes the same day.
 
-- On Today, and on the previous day's page until it closes:
+- On Today and on every day's page:
     - How it played out (single line, optional)
     - Did it resonate? Yes / No (optional)
-    - Themes (multi-select tags with create-on-the-fly)
-- The outcome note, resonance answer and themes are filled in on the evening of the day or on the following day. Themes are deliberately left off the morning form so they describe what happened rather than what was expected.
+- The outcome note and resonance answer can be filled in or changed on any day, at any time. They are deliberately left off the morning form so they describe what happened rather than what was expected.
+- Themes are not recorded in this section at present. The theme tag (section 3) and the theme analyses (6.2, item 12) are on hold until it is decided whether tags come back.
 - A "Notes" page lists every event note with its card, outcome and resonance.
 
 ### 4.8 Editing and locking
 
 Built after both halves of the day exist, so the rules can cover every field.
 
-- Any field of a day can be edited for 7 days. At midnight at the end of the seventh day after its date, the day becomes read-only.
-- Themes, outcome and resonance close earlier, at midnight at the end of the following day (section 4.7).
-- Locked days show a small lock icon. There is no unlock in the UI; corrections to locked days are done through the importer's review screen or directly in the database.
+- The morning fields (the reading, its jumpers, clarifiers and event note) can be edited for 7 days. At midnight at the end of the seventh day after its date, they become read-only.
+- The evening fields (outcome and resonance, section 4.7) have no lock and can be edited on any day.
+- Locked morning fields show a small lock icon. There is no unlock in the UI; corrections to locked days are done through the importer's review screen or directly in the database.
 
 ### 4.9 Import of existing readings
 
@@ -245,7 +248,7 @@ Each flagged line can be corrected or confirmed. Imported days arrive already lo
 
 Built after the import so it can be designed and tested against seven months of real days.
 
-- **Month grid:** each day shows a small card thumbnail tinted by suit, dots for jumpers and clarifiers, and a marker for note-only days. Tapping a day opens it, or opens the reading form with that date filled in if the day is empty.
+- **Month grid:** each day shows a small card thumbnail (on phones as well as wider screens) with a top border tinted by suit, dots for jumpers and clarifiers, and a marker for note-only days. Empty future days show a faded card-back. Tapping a day opens it, or opens the reading form with that date filled in if the day is empty.
 - **List:** reverse-chronological days with card, question and event note, with filters for date range, suit, arcana, element, planet, sign, theme and resonance, and free-text search across questions, notes and interpretations.
 - A switch at the top toggles between grid and list, and the app remembers the last one used.
 
@@ -300,7 +303,7 @@ Period bucketing is done in PHP with Carbon, so results are identical on web and
 
 **Attributions** (rely on the full astrological and Tree data): 9. **Astrology**: counts by planet, by zodiac sign and by decan, combining Majors, pips and courts according to their attributions. 10. **Tree of Life distribution**: a heat map of how often each sephira and path was lit, plus breakdowns by pillar (Mercy: Chokmah, Chesed, Netzach; Severity: Binah, Geburah, Hod; Middle: Kether, Tiphareth, Yesod, Malkuth) and by triad (Supernal, Ethical, Astral, Malkuth). 11. **Birth cards**: how often each of your birth cards was drawn in the period, grouped by role (birth Atu, decan card, Sun-sign Atu, court card), against the expected rate for that many cards.
 
-**Your own notes** (depend on evening entries, which the imported history doesn't have, so these become useful as new days build up): 12. **Theme analysis**: top themes per week, month, season and year, with a theme-by-period heat map. Theme rename and merge tools are built just before this, so drifting tags ("change", "transition") can be tidied first. 13. **Resonance**: share of days marked "resonated", overall and broken down by suit, element, planet and Tree position. 14. **Event correlation view**: for a chosen card, suit, planet or theme, the event notes and outcomes from the days it appeared.
+**Your own notes** (depend on evening entries, which the imported history doesn't have, so these become useful as new days build up): 12. **Theme analysis** (on hold, see 4.7): top themes per week, month, season and year, with a theme-by-period heat map. Theme rename and merge tools are built just before this, so drifting tags ("change", "transition") can be tidied first. 13. **Resonance**: share of days marked "resonated", overall and broken down by suit, element, planet and Tree position. 14. **Event correlation view**: for a chosen card, suit, planet or theme, the event notes and outcomes from the days it appeared.
 
 **Separate:** 15. **Jumpers**: how often cards jump, which cards jump most, their suits and elements, and how often a jumper shares a suit, element or Tree position with that day's main card. Kept separate from all other analyses.
 
@@ -359,7 +362,7 @@ Every analysis can show the selected period beside the previous one (this month 
 - NativePHP Mobile bundles PHP and the Laravel app into an Android shell, with SQLite on the device and the compiled Vue assets bundled in.
 - **The web app holds the master copy.** The phone keeps a full local copy so it works offline, and syncs with the web app whenever it is online.
 - **Sync:** an authenticated API (Sanctum token entered once in settings). The phone pushes days and card notes changed since its last sync, then pulls everything changed on the web. Records use ULIDs and soft deletes so either side can create and delete safely. If both sides changed the same day, the web version wins and the phone's version is kept in a conflict log you can review.
-- **Locking and sync:** the 7-day lock is enforced on the web, so an offline edit to a day that has since locked is rejected at sync and listed in the conflict log.
+- **Locking and sync:** the 7-day morning lock is enforced on the web, so an offline edit to a day that has since locked is rejected at sync and listed in the conflict log.
 - JSON export/import (4.11) remains for backups.
 - **Native features to use** (confirm availability in the current NativePHP release):
     - Local morning reminder ("Draw your card") and evening reminder ("How did it play out?")

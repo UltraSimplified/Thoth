@@ -63,7 +63,11 @@ const props = withDefaults(
     },
 );
 
-const emit = defineEmits<{ select: [key: string] }>();
+const emit = defineEmits<{
+    select: [key: string];
+    /** The point or path under the pointer or keyboard focus, or null when none. */
+    hover: [key: string | null];
+}>();
 
 function pathKey(path: PathInfo): string {
     return `path-${path.number}`;
@@ -126,6 +130,10 @@ function nodeLabel(sephira: Sephira): string {
 function activate(key: string): void {
     emit('select', key);
 }
+
+function preview(key: string | null): void {
+    emit('hover', key);
+}
 </script>
 
 <template>
@@ -159,6 +167,10 @@ function activate(key: string): void {
                 @click="activate(path.key)"
                 @keydown.enter.prevent="activate(path.key)"
                 @keydown.space.prevent="activate(path.key)"
+                @mouseenter="preview(path.key)"
+                @mouseleave="preview(null)"
+                @focus="preview(path.key)"
+                @blur="preview(null)"
             >
                 <title>{{ pathLabel(path) }}</title>
 
@@ -282,6 +294,10 @@ function activate(key: string): void {
                 @click="activate(node.key)"
                 @keydown.enter.prevent="activate(node.key)"
                 @keydown.space.prevent="activate(node.key)"
+                @mouseenter="preview(node.key)"
+                @mouseleave="preview(null)"
+                @focus="preview(node.key)"
+                @blur="preview(null)"
             >
                 <title>{{ nodeLabel(node) }}</title>
 

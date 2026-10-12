@@ -59,9 +59,6 @@ const props = defineProps<DayPageProps>();
                 v-if="props.day"
                 :date="props.date"
                 :day="props.day"
-                :theme-names="props.themeNames"
-                :locked="props.locks.evening"
-                :locked-until="props.locks.eveningUntil"
             />
         </div>
     </AppLayout>

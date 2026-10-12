@@ -36,7 +36,6 @@ it('shows the morning form on Today before a card is logged', function () {
             ->where('day', null)
             ->has('cards', 78)
             ->where('locks.morning', false)
-            ->where('locks.evening', false)
         );
 });
 
@@ -153,20 +152,20 @@ it('locks the morning fields at midnight at the end of the seventh day', functio
     expect(Day::where('date', '2026-10-04')->sole()->event_note)->toBe('Original.');
 });
 
-it('closes the evening section at the end of the following day', function () {
+it('keeps the evening section open on any later day', function () {
     Day::factory()->onDate('2026-10-11')->create();
 
     $this->actingAs($this->user)
-        ->put(route('days.evening.update', '2026-10-11'), ['outcome_note' => 'Allowed on the next day.', 'themes' => []])
+        ->put(route('days.evening.update', '2026-10-11'), ['outcome_note' => 'Written on the day.', 'themes' => []])
         ->assertRedirect();
 
-    Carbon::setTestNow(CarbonImmutable::parse('2026-10-13 09:00', 'Europe/London'));
+    Carbon::setTestNow(CarbonImmutable::parse('2026-10-20 09:00', 'Europe/London'));
 
     $this->actingAs($this->user)
-        ->put(route('days.evening.update', '2026-10-11'), ['outcome_note' => 'Too late.', 'themes' => []])
-        ->assertForbidden();
+        ->put(route('days.evening.update', '2026-10-11'), ['outcome_note' => 'Written weeks later.', 'themes' => []])
+        ->assertRedirect();
 
-    expect(Day::where('date', '2026-10-11')->sole()->outcome_note)->toBe('Allowed on the next day.');
+    expect(Day::where('date', '2026-10-11')->sole()->outcome_note)->toBe('Written weeks later.');
 });
 
 it('creates new themes on the fly and reuses them ignoring case', function () {
@@ -237,7 +236,6 @@ it('opens the edit page with locks reported for the day', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('DayEdit')
             ->where('locks.morning', true)
-            ->where('locks.evening', true)
             ->where('locks.morningUntil', '2026-10-08')
         );
 });

@@ -6,11 +6,13 @@ import ReplaceableCardImage from '@/components/cards/ReplaceableCardImage.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import TreeDetail from '@/components/tree/TreeDetail.vue';
 import TreeOfLife from '@/components/tree/TreeOfLife.vue';
+import TreeSummary from '@/components/tree/TreeSummary.vue';
 import { capitalise, zodiacSpanLabel } from '@/lib/cards';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     Appearance,
     CardData,
+    TreeElement,
     TreeHighlights,
     TreePosition,
 } from '@/types/deck';
@@ -29,6 +31,7 @@ const props = defineProps<{
     tree: {
         highlight: TreeHighlights;
         birth: TreeHighlights;
+        elements: TreeElement[];
         positions: {
             nodes: Record<string, CardRef[]>;
             paths: Record<string, CardRef[]>;
@@ -50,6 +53,9 @@ const ownKey = computed(() =>
 );
 
 const selected = ref<string>(ownKey.value);
+
+/** The tree point or path under the pointer, which lights its line in the text key. */
+const hovered = ref<string | null>(null);
 
 const selectedCards = computed<CardRef[]>(() => {
     if (selected.value.startsWith('path-')) {
@@ -103,7 +109,7 @@ const positionLine = computed(() => {
 
         <div class="grid gap-10 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
             <div class="space-y-5">
-                <div class="mx-auto w-48 md:w-full">
+                <div class="mx-auto w-64 max-w-full md:w-full">
                     <ReplaceableCardImage :card="props.card" />
                 </div>
 
@@ -266,6 +272,7 @@ const positionLine = computed(() => {
                         labelled
                         label="Tree of Life showing this card's position"
                         @select="selected = $event"
+                        @hover="hovered = $event"
                     />
                     <ul
                         class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted"
@@ -285,6 +292,10 @@ const positionLine = computed(() => {
                         </Link>
                         to outline your birth cards on the tree.
                     </p>
+                    <TreeSummary
+                        :elements="props.tree.elements"
+                        :hovered="hovered"
+                    />
                 </div>
 
                 <TreeDetail :selected="selected" :cards="selectedCards" />

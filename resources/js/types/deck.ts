@@ -36,6 +36,15 @@ export interface TreeHighlights {
     paths: number[];
 }
 
+/** One highlighted element on the tree, named for the text key beside it. */
+export interface TreeElement {
+    role: 'main' | 'jumper' | 'clarifier' | 'birth';
+    label: string;
+    card: string;
+    sephira: string | null;
+    path: number | null;
+}
+
 export interface ReadingData {
     question: string | null;
     interpretationNotes: string | null;
@@ -60,17 +69,15 @@ export interface DayPageProps {
     day: DayData | null;
     locks: {
         morning: boolean;
-        evening: boolean;
         morningUntil: string;
-        eveningUntil: string;
     };
     cards: CardData[];
-    themeNames: string[];
     tree: {
         main: TreeHighlights;
         jumpers: TreeHighlights;
         clarifiers: TreeHighlights;
         birth: TreeHighlights;
+        elements: TreeElement[];
     };
     journalUrl: string;
     showJournalReminder: boolean;

@@ -75,4 +75,17 @@ final class CardCatalog
                 ->all())
             ->all();
     }
+
+    /**
+     * The six birth positions, each named by its role, for the text key beside the Tree.
+     *
+     * @return list<array{role: string, label: string, card: string, sephira: ?string, path: ?int}>
+     */
+    public function birthElements(TreePlacement $placement): array
+    {
+        return array_map(
+            fn (array $entry): array => $placement->elementFor($entry['card'], 'birth', 'Birth: '.$entry['role']->treeLabel()),
+            $this->birthEntries(),
+        );
+    }
 }

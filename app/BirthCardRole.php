@@ -21,4 +21,17 @@ enum BirthCardRole: string
             self::CourtCard => 'Court card',
         };
     }
+
+    /**
+     * The role's name after the "Birth:" prefix in the text key, so the prefix is not repeated.
+     */
+    public function treeLabel(): string
+    {
+        return match ($this) {
+            self::BirthAtu => 'Atu',
+            self::DecanCard => 'Decan card',
+            self::SunSignAtu => 'Sun-sign Atu',
+            self::CourtCard => 'Court card',
+        };
+    }
 }

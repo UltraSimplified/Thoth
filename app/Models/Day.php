@@ -30,11 +30,6 @@ class Day extends Model
     public const MORNING_EDIT_DAYS = 7;
 
     /**
-     * Evening fields (outcome, resonance and themes) stay editable for this many days after the date.
-     */
-    public const EVENING_EDIT_DAYS = 1;
-
-    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -69,14 +64,6 @@ class Day extends Model
     public function isLockedOn(CarbonInterface $today): bool
     {
         return $this->editableUntil(self::MORNING_EDIT_DAYS) < $today->toDateString();
-    }
-
-    /**
-     * Whether the outcome, resonance and themes are read-only on the given day. Locks at midnight at the end of the following day.
-     */
-    public function isEveningLockedOn(CarbonInterface $today): bool
-    {
-        return $this->editableUntil(self::EVENING_EDIT_DAYS) < $today->toDateString();
     }
 
     /**

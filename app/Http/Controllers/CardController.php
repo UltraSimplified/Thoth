@@ -73,6 +73,10 @@ class CardController extends Controller
             'tree' => [
                 'highlight' => $placement->highlightsFor([$card]),
                 'birth' => $placement->highlightsFor(array_column($catalog->birthEntries(), 'card')),
+                'elements' => [
+                    $placement->elementFor($card, 'main', 'This card'),
+                    ...$catalog->birthElements($placement),
+                ],
                 'positions' => $placement->cardsByPosition(Card::query()->get()),
             ],
             'appearances' => $this->appearances($card),

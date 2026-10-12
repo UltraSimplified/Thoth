@@ -119,6 +119,24 @@ final class TreePlacement
         return ['nodes' => $nodes, 'paths' => $paths];
     }
 
+    /**
+     * Where a card sits, described for the text key beside the Tree: its role, a label, its name, and its sephira or path.
+     *
+     * @return array{role: string, label: string, card: string, sephira: ?string, path: ?int}
+     */
+    public function elementFor(Card $card, string $role, string $label): array
+    {
+        $position = $this->positionFor($card);
+
+        return [
+            'role' => $role,
+            'label' => $label,
+            'card' => $card->name,
+            'sephira' => $position['sephira']?->value,
+            'path' => $position['path'],
+        ];
+    }
+
     private function pathFor(Card $card): ?int
     {
         if ($this->style === TreePlacementStyle::GoldenDawn) {

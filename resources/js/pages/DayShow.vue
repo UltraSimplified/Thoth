@@ -11,7 +11,7 @@ import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps<DayPageProps>();
 
-const canEdit = !props.locks.morning || !props.locks.evening;
+const canEdit = !props.locks.morning;
 </script>
 
 <template>
@@ -74,9 +74,6 @@ const canEdit = !props.locks.morning || !props.locks.evening;
                 v-if="props.day"
                 :date="props.date"
                 :day="props.day"
-                :theme-names="props.themeNames"
-                :locked="props.locks.evening"
-                :locked-until="props.locks.eveningUntil"
             />
         </div>
     </AppLayout>
