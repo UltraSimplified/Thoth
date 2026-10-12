@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PATH_INFO, type PathInfo } from '@/lib/tree';
 import type { TreeHighlights } from '@/types/deck';
 import { computed } from 'vue';
 
@@ -12,13 +13,6 @@ interface Sephira {
     number: number;
     x: number;
     y: number;
-}
-
-interface TreePath {
-    number: number;
-    letter: string;
-    from: string;
-    to: string;
 }
 
 const SEPHIROTH: Sephira[] = [
@@ -36,30 +30,7 @@ const SEPHIROTH: Sephira[] = [
 
 const DAATH = { x: 100, y: 100 };
 
-const PATHS: TreePath[] = [
-    { number: 11, letter: 'Aleph', from: 'kether', to: 'chokmah' },
-    { number: 12, letter: 'Beth', from: 'kether', to: 'binah' },
-    { number: 13, letter: 'Gimel', from: 'kether', to: 'tiphareth' },
-    { number: 14, letter: 'Daleth', from: 'chokmah', to: 'binah' },
-    { number: 15, letter: 'Heh', from: 'chokmah', to: 'tiphareth' },
-    { number: 16, letter: 'Vav', from: 'chokmah', to: 'chesed' },
-    { number: 17, letter: 'Zain', from: 'binah', to: 'tiphareth' },
-    { number: 18, letter: 'Cheth', from: 'binah', to: 'geburah' },
-    { number: 19, letter: 'Teth', from: 'chesed', to: 'geburah' },
-    { number: 20, letter: 'Yod', from: 'chesed', to: 'tiphareth' },
-    { number: 21, letter: 'Kaph', from: 'chesed', to: 'netzach' },
-    { number: 22, letter: 'Lamed', from: 'geburah', to: 'tiphareth' },
-    { number: 23, letter: 'Mem', from: 'geburah', to: 'hod' },
-    { number: 24, letter: 'Nun', from: 'tiphareth', to: 'netzach' },
-    { number: 25, letter: 'Samekh', from: 'tiphareth', to: 'yesod' },
-    { number: 26, letter: 'Ayin', from: 'tiphareth', to: 'hod' },
-    { number: 27, letter: 'Peh', from: 'netzach', to: 'hod' },
-    { number: 28, letter: 'Tzaddi', from: 'netzach', to: 'yesod' },
-    { number: 29, letter: 'Qoph', from: 'netzach', to: 'malkuth' },
-    { number: 30, letter: 'Resh', from: 'hod', to: 'yesod' },
-    { number: 31, letter: 'Shin', from: 'hod', to: 'malkuth' },
-    { number: 32, letter: 'Tav', from: 'yesod', to: 'malkuth' },
-];
+const PATHS = PATH_INFO;
 
 const props = withDefaults(
     defineProps<{
@@ -94,7 +65,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{ select: [key: string] }>();
 
-function pathKey(path: TreePath): string {
+function pathKey(path: PathInfo): string {
     return `path-${path.number}`;
 }
 
@@ -102,7 +73,7 @@ function sephiraAt(key: string): Sephira {
     return SEPHIROTH.find((sephira) => sephira.key === key) as Sephira;
 }
 
-function lit(list: TreeHighlights, node: Sephira | TreePath): boolean {
+function lit(list: TreeHighlights, node: Sephira | PathInfo): boolean {
     return 'key' in node
         ? list.nodes.includes(node.key)
         : list.paths.includes(node.number);
@@ -144,7 +115,7 @@ const nodes = computed(() =>
     })),
 );
 
-function pathLabel(path: TreePath): string {
+function pathLabel(path: PathInfo): string {
     return `Path ${path.number}, ${path.letter}, joining ${sephiraAt(path.from).name} and ${sephiraAt(path.to).name}`;
 }
 
@@ -217,8 +188,8 @@ function activate(key: string): void {
                     :x2="path.x2"
                     :y2="path.y2"
                     stroke="var(--ink)"
-                    stroke-opacity="0.22"
-                    stroke-width="9"
+                    stroke-opacity="0.45"
+                    stroke-width="7"
                 />
 
                 <line
@@ -321,11 +292,10 @@ function activate(key: string): void {
                     v-if="node.birth"
                     :cx="node.x"
                     :cy="node.y"
-                    r="18"
+                    r="19.5"
                     fill="none"
                     stroke="var(--ink)"
                     stroke-width="2"
-                    stroke-dasharray="3 2"
                 />
 
                 <circle

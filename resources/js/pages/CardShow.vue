@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { show as showCard } from '@/actions/App/Http/Controllers/CardController';
+import { show as showSettings } from '@/actions/App/Http/Controllers/SettingsController';
 import BirthBadge from '@/components/cards/BirthBadge.vue';
 import CardNote from '@/components/cards/CardNote.vue';
 import ReplaceableCardImage from '@/components/cards/ReplaceableCardImage.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import TreeDetail from '@/components/tree/TreeDetail.vue';
 import TreeOfLife from '@/components/tree/TreeOfLife.vue';
 import { capitalise, zodiacSpanLabel } from '@/lib/cards';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -27,6 +28,7 @@ const props = defineProps<{
     position: TreePosition;
     tree: {
         highlight: TreeHighlights;
+        birth: TreeHighlights;
         positions: {
             nodes: Record<string, CardRef[]>;
             paths: Record<string, CardRef[]>;
@@ -60,13 +62,10 @@ const selectedCards = computed<CardRef[]>(() => {
     return props.tree.positions.nodes[selected.value] ?? [];
 });
 
-const selectedLabel = computed(() => {
-    if (selected.value.startsWith('path-')) {
-        return `Path ${selected.value.slice('path-'.length)}`;
-    }
-
-    return capitalise(selected.value);
-});
+const hasBirthPositions = computed(
+    () =>
+        props.tree.birth.nodes.length > 0 || props.tree.birth.paths.length > 0,
+);
 
 const suitOrMajor = computed(() =>
     props.card.suitLabel === null
@@ -199,46 +198,6 @@ const positionLine = computed(() => {
                     </dl>
                 </section>
 
-                <section aria-labelledby="tree-heading" class="space-y-4">
-                    <h2 id="tree-heading" class="font-heading text-lg text-ink">
-                        Tree of Life
-                    </h2>
-                    <TreeOfLife
-                        :highlight="props.tree.highlight"
-                        :selected="selected"
-                        labelled
-                        label="Tree of Life showing this card's position"
-                        @select="selected = $event"
-                    />
-                    <div
-                        class="rounded-lg border border-line bg-surface p-4"
-                        aria-live="polite"
-                    >
-                        <p class="text-sm font-medium text-ink">
-                            {{ selectedLabel }}
-                        </p>
-                        <ul
-                            v-if="selectedCards.length"
-                            class="mt-2 flex flex-wrap gap-2 text-sm text-muted"
-                        >
-                            <li
-                                v-for="entry in selectedCards"
-                                :key="entry.slug"
-                            >
-                                <Link
-                                    :href="showCard.url(entry.slug)"
-                                    class="hover:text-accent hover:underline"
-                                >
-                                    {{ entry.name }}
-                                </Link>
-                            </li>
-                        </ul>
-                        <p v-else class="mt-2 text-sm text-muted">
-                            No cards sit here.
-                        </p>
-                    </div>
-                </section>
-
                 <section
                     aria-labelledby="appearances-heading"
                     class="space-y-4"
@@ -291,5 +250,45 @@ const positionLine = computed(() => {
                 </section>
             </div>
         </div>
+        <!-- The tree and its explanation span the full width, so the panel has room beside the tree. -->
+        <section aria-labelledby="tree-heading" class="space-y-4 pt-2">
+            <h2 id="tree-heading" class="font-heading text-lg text-ink">
+                Tree of Life
+            </h2>
+            <div
+                class="grid gap-6 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)] md:items-start"
+            >
+                <div class="space-y-3">
+                    <TreeOfLife
+                        :highlight="props.tree.highlight"
+                        :birth="props.tree.birth"
+                        :selected="selected"
+                        labelled
+                        label="Tree of Life showing this card's position"
+                        @select="selected = $event"
+                    />
+                    <ul
+                        class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted"
+                    >
+                        <li>Solid: this card</li>
+                        <li v-if="hasBirthPositions">
+                            Outlined: birth card position
+                        </li>
+                    </ul>
+                    <p v-if="!hasBirthPositions" class="text-xs text-muted">
+                        Set your date of birth in
+                        <Link
+                            :href="showSettings.url()"
+                            class="text-accent underline-offset-2 hover:underline"
+                        >
+                            Settings
+                        </Link>
+                        to outline your birth cards on the tree.
+                    </p>
+                </div>
+
+                <TreeDetail :selected="selected" :cards="selectedCards" />
+            </div>
+        </section>
     </AppLayout>
 </template>

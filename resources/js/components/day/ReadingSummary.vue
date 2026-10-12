@@ -5,8 +5,11 @@ import ReplaceableCardImage from '@/components/cards/ReplaceableCardImage.vue';
 import CardNote from '@/components/cards/CardNote.vue';
 import JournalLink from '@/components/day/JournalLink.vue';
 import TreeOfLife from '@/components/tree/TreeOfLife.vue';
+import { show as showSettings } from '@/actions/App/Http/Controllers/SettingsController';
 import { capitalise, zodiacSpanLabel } from '@/lib/cards';
 import type { CardData, DayPageProps, ReadingData } from '@/types/deck';
+import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{
     reading: ReadingData;
@@ -16,6 +19,11 @@ const props = defineProps<{
     /** Lets the owner click the main card to upload a replacement scan. */
     replaceableImage?: boolean;
 }>();
+
+const hasBirthPositions = computed(
+    () =>
+        props.tree.birth.nodes.length > 0 || props.tree.birth.paths.length > 0,
+);
 
 function attributions(card: CardData): string[] {
     return [
@@ -156,8 +164,19 @@ function attributions(card: CardData): string[] {
                     <li>Solid: main card</li>
                     <li>Dashed: jumper</li>
                     <li>Dotted: clarifier</li>
-                    <li>Outlined: birth card position</li>
+                    <li v-if="hasBirthPositions">
+                        Outlined: birth card position
+                    </li>
                 </ul>
+                <p v-if="!hasBirthPositions" class="text-xs text-muted">
+                    Set your date of birth in
+                    <Link
+                        :href="showSettings.url()"
+                        class="text-accent underline-offset-2 hover:underline"
+                        >Settings</Link
+                    >
+                    to outline your birth cards on the tree.
+                </p>
             </section>
         </div>
     </div>
