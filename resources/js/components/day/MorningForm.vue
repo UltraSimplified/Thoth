@@ -132,6 +132,14 @@ function submit(): void {
                         <p class="truncate font-heading text-lg text-ink">
                             {{ mainCard.name }}
                         </p>
+                        <a
+                            :href="mainCard.thothreadingsUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex min-h-11 items-center rounded-md border border-accent px-3 text-sm text-accent hover:bg-surface-2"
+                        >
+                            Reading on thothreadings.com
+                        </a>
                         <button
                             type="button"
                             class="min-h-11 rounded-md border border-line px-3 text-sm text-muted hover:text-ink"

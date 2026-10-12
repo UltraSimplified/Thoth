@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { show as showCard } from '@/actions/App/Http/Controllers/CardController';
 import BirthBadge from '@/components/cards/BirthBadge.vue';
-import CardImage from '@/components/cards/CardImage.vue';
 import CardNote from '@/components/cards/CardNote.vue';
+import ReplaceableCardImage from '@/components/cards/ReplaceableCardImage.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import TreeOfLife from '@/components/tree/TreeOfLife.vue';
 import { capitalise, zodiacSpanLabel } from '@/lib/cards';
@@ -105,7 +105,7 @@ const positionLine = computed(() => {
         <div class="grid gap-10 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
             <div class="space-y-5">
                 <div class="mx-auto w-48 md:w-full">
-                    <CardImage :card="props.card" size="full" />
+                    <ReplaceableCardImage :card="props.card" />
                 </div>
 
                 <div
