@@ -16,6 +16,8 @@ final class ReadingImporter
 
     private const WORD_DATE = '/(?<![\w])(\d{1,2})(?:st|nd|rd|th)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i';
 
+    private const MONTH_FIRST_DATE = '/(?<![\w])(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?![\w])/i';
+
     private const MONTHS = [
         'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4, 'may' => 5, 'jun' => 6,
         'jul' => 7, 'aug' => 8, 'sep' => 9, 'oct' => 10, 'nov' => 11, 'dec' => 12,
@@ -86,7 +88,7 @@ final class ReadingImporter
         $notes = array_merge($notes, $main['extras']);
 
         if ($card !== null && $main['title'] !== null) {
-            if ($card->title === null && ! $card->isMajor()) {
+            if (($card->title === null && ! $card->isMajor()) || $this->isNote($main['title'])) {
                 $notes[] = $main['title'];
             } elseif (! $this->cards->titleMatches($card, $main['title'])) {
                 $problems[] = $this->titleProblem($card, $main['title']);
@@ -204,6 +206,12 @@ final class ReadingImporter
             return $this->dateFrom((int) $match[1][0], $month, $year, $content, $match[0]);
         }
 
+        if (preg_match(self::MONTH_FIRST_DATE, $content, $match, PREG_OFFSET_CAPTURE) === 1) {
+            $month = self::MONTHS[strtolower(substr($match[1][0], 0, 3))];
+
+            return $this->dateFrom((int) $match[2][0], $month, $year, $content, $match[0]);
+        }
+
         return ['date' => null, 'invalid' => false, 'remaining' => $content];
     }
 
@@ -226,9 +234,19 @@ final class ReadingImporter
         ];
     }
 
+    /**
+     * Text with an equals sign or a number is a note ("0 = 2"), never a card title.
+     */
+    private function isNote(string $text): bool
+    {
+        return str_contains($text, '=') || preg_match('/\d/', $text) === 1;
+    }
+
     private function hasDate(string $content): bool
     {
-        return preg_match(self::NUMERIC_DATE, $content) === 1 || preg_match(self::WORD_DATE, $content) === 1;
+        return preg_match(self::NUMERIC_DATE, $content) === 1
+            || preg_match(self::WORD_DATE, $content) === 1
+            || preg_match(self::MONTH_FIRST_DATE, $content) === 1;
     }
 
     /**
@@ -292,7 +310,7 @@ final class ReadingImporter
 
     private function contentOf(string $line): string
     {
-        return trim(preg_replace('/^\s*\*+\s*/', '', $line) ?? '');
+        return trim(preg_replace('/^\s*[*•+\-]+\s*/u', '', $line) ?? '');
     }
 
     private function indentOf(string $line): int

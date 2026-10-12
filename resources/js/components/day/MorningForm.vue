@@ -125,11 +125,9 @@ function submit(): void {
                 </h2>
 
                 <div v-if="mainCard" class="flex items-center gap-4">
-                    <CardImage
-                        :card="mainCard"
-                        size="thumbnail"
-                        class="w-20 shrink-0"
-                    />
+                    <div class="w-20 shrink-0">
+                        <CardImage :card="mainCard" size="thumbnail" />
+                    </div>
                     <div class="min-w-0 space-y-2">
                         <p class="truncate font-heading text-lg text-ink">
                             {{ mainCard.name }}

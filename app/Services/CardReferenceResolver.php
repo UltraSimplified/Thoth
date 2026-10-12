@@ -61,6 +61,17 @@ final class CardReferenceResolver
             }
         }
 
+        // "THE HERMIT IX" or "XVI THE TOWER": a name and its Roman numeral, in either order.
+        if (preg_match('/^(?:atu\s+)?(.+?)\s+([ivxlc]+|\d{1,2})$/i', $reference, $match) === 1
+            && ($card = $this->namedWithNumber($match[1], $match[2])) !== null) {
+            return $card;
+        }
+
+        if (preg_match('/^([ivxlc]+|\d{1,2})\s+(.+)$/i', $reference, $match) === 1
+            && ($card = $this->namedWithNumber($match[2], $match[1])) !== null) {
+            return $card;
+        }
+
         if (preg_match('/^(\S+)\s+(?:of\s+)?(\S+)$/i', $reference, $match) === 1) {
             $rank = $this->rankOf($match[1]);
             $suit = $this->suitOf($match[2]);
@@ -73,6 +84,22 @@ final class CardReferenceResolver
         }
 
         return $this->majorNamed($reference);
+    }
+
+    /**
+     * The major arcana whose name and number both match, or null when they disagree or either is unknown.
+     */
+    private function namedWithNumber(string $name, string $numeral): ?Card
+    {
+        $number = ctype_digit($numeral) ? (int) $numeral : $this->romanToInt($numeral);
+
+        if ($number === null || $number < 0 || $number > 21) {
+            return null;
+        }
+
+        $named = $this->majorNamed($name);
+
+        return $named !== null && $named->number === $number ? $named : null;
     }
 
     /**

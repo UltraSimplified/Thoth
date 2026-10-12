@@ -178,3 +178,45 @@ it('rejects an import with a card that does not exist', function () {
         ])
         ->assertSessionHasErrors('days.0.card_id');
 });
+
+it('reads dash bullets and skips month headers', function () {
+    $rows = parseReadings("- JANUARY (5 Cups, 2 Atu) = CUPS\n  - EMPRESS — 14/1\n  - FOUR of SWORDS — Truce — 03/02");
+
+    expect($rows)->toHaveCount(2)
+        ->and($rows[0]['date'])->toBe('2026-01-14')
+        ->and($rows[0]['card_id'])->toBe(cardNamed('the-empress')->id)
+        ->and($rows[1]['date'])->toBe('2026-02-03')
+        ->and($rows[1]['card_id'])->toBe(cardNamed('four-of-swords')->id)
+        ->and($rows[0]['problems'])->toBe([])
+        ->and($rows[1]['problems'])->toBe([]);
+});
+
+it('reads a date written month first', function () {
+    $rows = parseReadings('  - FOUR of SWORDS — Truce — October 1');
+
+    expect($rows[0]['date'])->toBe('2026-10-01')
+        ->and($rows[0]['problems'])->toBe([]);
+});
+
+it('reads a Roman numeral written after the name', function () {
+    $rows = parseReadings("  - THE HERMIT IX — 15/1\n  - LUST XI — 25/1");
+
+    expect($rows[0]['card_id'])->toBe(cardNamed('the-hermit')->id)
+        ->and($rows[1]['card_id'])->toBe(cardNamed('lust')->id)
+        ->and($rows[0]['problems'])->toBe([]);
+});
+
+it('keeps "0 = 2" as a note rather than a title', function () {
+    $rows = parseReadings('  - ACE of CUPS — 0 = 2  09/02');
+
+    expect($rows[0]['notes'])->toBe('0 = 2')
+        ->and($rows[0]['problems'])->toBe([]);
+});
+
+it('nests a dash-bulleted card beneath the day above it as a clarifier', function () {
+    $rows = parseReadings("  - EIGHT of CUPS — Indolence 23/03\n    - XV — The Devil");
+
+    expect($rows)->toHaveCount(1)
+        ->and($rows[0]['clarifier_ids'])->toBe([cardNamed('the-devil')->id])
+        ->and($rows[0]['problems'])->toBe([]);
+});

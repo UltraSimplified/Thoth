@@ -104,11 +104,9 @@ const positionLine = computed(() => {
 
         <div class="grid gap-10 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
             <div class="space-y-5">
-                <CardImage
-                    :card="props.card"
-                    size="full"
-                    class="mx-auto w-48 md:w-full"
-                />
+                <div class="mx-auto w-48 md:w-full">
+                    <CardImage :card="props.card" size="full" />
+                </div>
 
                 <div
                     v-if="props.card.birthRoles.length"

@@ -11,7 +11,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { CardData } from '@/types/deck';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface ReviewRow {
     line: number;
@@ -46,13 +46,7 @@ function startReview(): void {
     paste.post(reviewImport.url(), { preserveScroll: false });
 }
 
-const rows = ref<EditableRow[]>(
-    (props.review?.rows ?? []).map((row) => ({
-        ...row,
-        clarifier_ids: [...row.clarifier_ids],
-        jumper_ids: [],
-    })),
-);
+const rows = ref<EditableRow[]>([]);
 
 const cardsById = computed(
     () => new Map(props.cards.map((card) => [card.id, card])),
@@ -82,6 +76,21 @@ const picking = ref<{
     index: number;
     slot: 'main' | 'clarifier' | 'jumper';
 } | null>(null);
+
+// This page is also the review screen, so it keeps its instance when the review arrives. Follow the prop
+// rather than reading it once at setup, or the review would stay empty.
+watch(
+    () => props.review,
+    (review) => {
+        rows.value = (review?.rows ?? []).map((row) => ({
+            ...row,
+            clarifier_ids: [...row.clarifier_ids],
+            jumper_ids: [],
+        }));
+        picking.value = null;
+    },
+    { immediate: true },
+);
 
 const pickerHeading = computed(() => {
     switch (picking.value?.slot) {
@@ -315,12 +324,12 @@ function startOver(): void {
                                 v-if="row.card_id !== null"
                                 class="flex items-center gap-3"
                             >
-                                <CardImage
-                                    v-if="cardFor(row.card_id)"
-                                    :card="cardFor(row.card_id) as CardData"
-                                    size="thumbnail"
-                                    class="w-14"
-                                />
+                                <div class="w-14" v-if="cardFor(row.card_id)">
+                                    <CardImage
+                                        :card="cardFor(row.card_id) as CardData"
+                                        size="thumbnail"
+                                    />
+                                </div>
                                 <div class="space-y-1">
                                     <p class="text-ink">
                                         {{ cardName(row.card_id) }}
