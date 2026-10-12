@@ -10,6 +10,7 @@ use App\Services\AppSettings;
 use App\Services\CardCatalog;
 use App\Services\CardImageStore;
 use App\Services\TreePlacement;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -21,13 +22,42 @@ use Inertia\Response;
 class CardController extends Controller
 {
     /**
-     * The card index, grouped by suit on the page.
+     * The date from which the index counts how often each card has been drawn.
+     */
+    private const DRAWS_COUNTED_FROM = '2026-01-01';
+
+    /**
+     * The card index, grouped by suit on the page. Each card carries how often it was drawn as the main card since the cut-off.
      */
     public function index(CardCatalog $catalog): Response
     {
+        $draws = $this->mainCardDrawsFrom(self::DRAWS_COUNTED_FROM);
+
         return Inertia::render('Cards', [
-            'cards' => $catalog->all(),
+            'cards' => collect($catalog->all())
+                ->map(fn (array $card): array => $card + ['drawsSince' => $draws[$card['id']] ?? 0])
+                ->values()
+                ->all(),
+            'drawsFrom' => CarbonImmutable::parse(self::DRAWS_COUNTED_FROM)->translatedFormat('j F Y'),
         ]);
+    }
+
+    /**
+     * How many days each card was drawn as the main card on or after the given date, keyed by card id.
+     * Clarifiers and jumpers are not counted.
+     *
+     * @return array<int, int>
+     */
+    private function mainCardDrawsFrom(string $date): array
+    {
+        return Reading::query()
+            ->join('days', 'days.id', '=', 'readings.day_id')
+            ->where('days.date', '>=', $date)
+            ->groupBy('readings.card_id')
+            ->selectRaw('readings.card_id, count(*) as draws')
+            ->pluck('draws', 'card_id')
+            ->map(fn (mixed $draws): int => (int) $draws)
+            ->all();
     }
 
     /**
