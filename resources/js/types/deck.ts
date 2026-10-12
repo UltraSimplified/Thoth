@@ -72,6 +72,7 @@ export interface DayPageProps {
         morningUntil: string;
     };
     cards: CardData[];
+    themeNames: string[];
     tree: {
         main: TreeHighlights;
         jumpers: TreeHighlights;

@@ -74,6 +74,7 @@ const canEdit = !props.locks.morning;
                 v-if="props.day"
                 :date="props.date"
                 :day="props.day"
+                :theme-names="props.themeNames"
             />
         </div>
     </AppLayout>

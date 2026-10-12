@@ -37,12 +37,12 @@ The app runs as a web app (Laravel + Vue 3 via Inertia) and is packaged for Andr
 
 ## 3. Core Concepts
 
-- **Day**: one calendar date (local time). Holds the event note, the outcome note, the resonance answer and the 750words link. A day can exist without a card (a note-only day).
+- **Day**: one calendar date (local time). Holds the event note, the outcome note, the resonance answer, the themes and the 750words link. A day can exist without a card (a note-only day).
 - **Reading**: the main card drawn on a day, with an optional question and interpretation notes. One per day.
 - **Jumper**: a card that jumps out of the deck while shuffling, before the main card is picked. A reading can have any number of jumpers, kept in the order they appeared. Jumpers are recorded separately from clarifiers because they come before the draw rather than qualifying it.
 - **Clarifier**: an extra card drawn on the same day to clarify the main card. A reading can have any number of clarifiers, kept in the order drawn.
 - **Card**: one of the 78 cards of the Thoth deck, seeded once with its full attributions (section 3.1).
-- **Theme**: a free-form tag describing the broad theme of a day. Not recorded at present: the evening section no longer offers it (section 4.7), and whether tags return is still open.
+- **Theme**: a free-form tag describing the broad theme of a day, added in hindsight (section 4.7). For example, a day about money can be tagged "money".
 - **Birth cards**: your personal significators calculated from your date of birth, set once in settings (section 4.4).
 
 ### 3.1 Card attributions
@@ -193,15 +193,15 @@ The core daily flow, built on the card picker, the tree and the journal link.
 
 Each day also has its own page (`/days/{date}`) showing the same content, used by the calendar and lists later.
 
-### 4.7 Evening section: outcomes and resonance
+### 4.7 Evening section: outcomes, resonance and themes
 
 Built once logging works, since it completes the same day.
 
 - On Today and on every day's page:
     - How it played out (single line, optional)
     - Did it resonate? Yes / No (optional)
-- The outcome note and resonance answer can be filled in or changed on any day, at any time. They are deliberately left off the morning form so they describe what happened rather than what was expected.
-- Themes are not recorded in this section at present. The theme tag (section 3) and the theme analyses (6.2, item 12) are on hold until it is decided whether tags come back.
+    - Themes (multi-select tags with create-on-the-fly)
+- The outcome note, resonance answer and themes can be filled in or changed on any day, at any time. They are deliberately left off the morning form so they describe what happened rather than what was expected.
 - A "Notes" page lists every event note with its card, outcome and resonance.
 
 ### 4.8 Editing and locking
@@ -209,7 +209,7 @@ Built once logging works, since it completes the same day.
 Built after both halves of the day exist, so the rules can cover every field.
 
 - The morning fields (the reading, its jumpers, clarifiers and event note) can be edited for 7 days. At midnight at the end of the seventh day after its date, they become read-only.
-- The evening fields (outcome and resonance, section 4.7) have no lock and can be edited on any day.
+- The evening fields (outcome, resonance and themes, section 4.7) have no lock and can be edited on any day.
 - Locked morning fields show a small lock icon. There is no unlock in the UI; corrections to locked days are done through the importer's review screen or directly in the database.
 
 ### 4.9 Import of existing readings
@@ -303,7 +303,7 @@ Period bucketing is done in PHP with Carbon, so results are identical on web and
 
 **Attributions** (rely on the full astrological and Tree data): 9. **Astrology**: counts by planet, by zodiac sign and by decan, combining Majors, pips and courts according to their attributions. 10. **Tree of Life distribution**: a heat map of how often each sephira and path was lit, plus breakdowns by pillar (Mercy: Chokmah, Chesed, Netzach; Severity: Binah, Geburah, Hod; Middle: Kether, Tiphareth, Yesod, Malkuth) and by triad (Supernal, Ethical, Astral, Malkuth). 11. **Birth cards**: how often each of your birth cards was drawn in the period, grouped by role (birth Atu, decan card, Sun-sign Atu, court card), against the expected rate for that many cards.
 
-**Your own notes** (depend on evening entries, which the imported history doesn't have, so these become useful as new days build up): 12. **Theme analysis** (on hold, see 4.7): top themes per week, month, season and year, with a theme-by-period heat map. Theme rename and merge tools are built just before this, so drifting tags ("change", "transition") can be tidied first. 13. **Resonance**: share of days marked "resonated", overall and broken down by suit, element, planet and Tree position. 14. **Event correlation view**: for a chosen card, suit, planet or theme, the event notes and outcomes from the days it appeared.
+**Your own notes** (depend on evening entries, which the imported history doesn't have, so these become useful as new days build up): 12. **Theme analysis**: top themes per week, month, season and year, with a theme-by-period heat map. Theme rename and merge tools are built just before this, so drifting tags ("change", "transition") can be tidied first. 13. **Resonance**: share of days marked "resonated", overall and broken down by suit, element, planet and Tree position. 14. **Event correlation view**: for a chosen card, suit, planet or theme, the event notes and outcomes from the days it appeared.
 
 **Separate:** 15. **Jumpers**: how often cards jump, which cards jump most, their suits and elements, and how often a jumper shares a suit, element or Tree position with that day's main card. Kept separate from all other analyses.
 

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Day;
+use App\Models\Theme;
 use Carbon\CarbonImmutable;
 
 /**
@@ -43,6 +44,7 @@ final class DayPage
                 'morningUntil' => $lockDay->editableUntil(Day::MORNING_EDIT_DAYS),
             ],
             'cards' => $this->cards->all(),
+            'themeNames' => Theme::query()->orderBy('name')->pluck('name')->values(),
             'tree' => $this->treeData($day),
             'journalUrl' => 'https://750words.com/account/stats/'.$date->toDateString(),
             'showJournalReminder' => ! $this->settings->journalTimezoneConfirmed(),
