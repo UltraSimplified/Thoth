@@ -8,9 +8,13 @@ use App\Models\Reading;
 use App\Models\ReadingCard;
 use App\Services\AppSettings;
 use App\Services\CardCatalog;
+use App\Services\CardImageStore;
 use App\Services\TreePlacement;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -56,6 +60,28 @@ class CardController extends Controller
         $card->update(['personal_note' => $validated['personal_note'] ?? null]);
 
         return response()->noContent();
+    }
+
+    /**
+     * Replace a card's image with an uploaded scan. The scan is cropped and resized the same way as an import,
+     * so the new image shows on every day the card appears.
+     */
+    public function updateImage(Request $request, Card $card, CardImageStore $images): RedirectResponse
+    {
+        $request->validate([
+            'image' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif', 'max:20480'],
+        ]);
+
+        /** @var UploadedFile $upload */
+        $upload = $request->file('image');
+
+        if (! $images->storeScan($card, (string) file_get_contents($upload->getRealPath()))) {
+            throw ValidationException::withMessages([
+                'image' => 'We could not read that image. Try a JPEG, PNG or WebP scan.',
+            ]);
+        }
+
+        return back();
     }
 
     /**

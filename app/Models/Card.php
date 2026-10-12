@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $tree_path
  * @property string $thothreadings_url
  * @property string|null $personal_note
+ * @property int $image_version Increases each time the card's scan is replaced
  */
 #[Fillable(['slug', 'name', 'title', 'arcana', 'suit', 'rank', 'number', 'element', 'sub_element', 'hebrew_letter', 'planet', 'sign', 'decan', 'zodiac_span_from', 'zodiac_span_to', 'quadrant', 'sephira', 'tree_path', 'thothreadings_url', 'personal_note'])]
 class Card extends Model
@@ -124,10 +125,15 @@ class Card extends Model
         return $this->imageUrlFor('cards/thumbs/'.$this->slug.'.webp');
     }
 
+    /**
+     * The stored image, versioned by how many times the scan has been replaced, so a new scan is not shown from the browser's cache.
+     */
     private function imageUrlFor(string $path): string
     {
-        return Storage::disk('public')->exists($path)
-            ? Storage::disk('public')->url($path)
-            : asset('images/card-back.svg');
+        if (! Storage::disk('public')->exists($path)) {
+            return asset('images/card-back.svg');
+        }
+
+        return Storage::disk('public')->url($path).'?v='.$this->image_version;
     }
 }

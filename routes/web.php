@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/cards', [CardController::class, 'index'])->name('cards');
     Route::get('/cards/{card}', [CardController::class, 'show'])->name('cards.show');
     Route::put('/cards/{card}/note', [CardController::class, 'updateNote'])->name('cards.note.update');
+    Route::post('/cards/{card}/image', [CardController::class, 'updateImage'])->name('cards.image.update');
 
     Route::get('/notes', [NoteController::class, 'index'])->name('notes');
 

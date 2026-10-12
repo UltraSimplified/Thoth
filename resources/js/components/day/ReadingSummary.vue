@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BirthBadge from '@/components/cards/BirthBadge.vue';
 import CardImage from '@/components/cards/CardImage.vue';
+import ReplaceableCardImage from '@/components/cards/ReplaceableCardImage.vue';
 import CardNote from '@/components/cards/CardNote.vue';
 import JournalLink from '@/components/day/JournalLink.vue';
 import TreeOfLife from '@/components/tree/TreeOfLife.vue';
@@ -12,6 +13,8 @@ const props = defineProps<{
     eventNote: string | null;
     tree: DayPageProps['tree'];
     journalUrl: string;
+    /** Lets the owner click the main card to upload a replacement scan. */
+    replaceableImage?: boolean;
 }>();
 
 function attributions(card: CardData): string[] {
@@ -57,11 +60,13 @@ function attributions(card: CardData): string[] {
                 </li>
             </ul>
 
-            <CardImage
-                :card="reading.card"
-                size="full"
-                class="mx-auto w-44 md:w-full"
-            />
+            <div class="mx-auto w-44 md:w-full">
+                <ReplaceableCardImage
+                    v-if="replaceableImage"
+                    :card="reading.card"
+                />
+                <CardImage v-else :card="reading.card" size="full" />
+            </div>
 
             <!-- Clarifiers sit beneath the main card, smaller. -->
             <ul

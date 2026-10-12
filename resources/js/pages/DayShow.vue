@@ -44,6 +44,7 @@ const canEdit = !props.locks.morning || !props.locks.evening;
                     :event-note="props.day.eventNote"
                     :tree="props.tree"
                     :journal-url="props.journalUrl"
+                    replaceable-image
                 />
             </section>
 
