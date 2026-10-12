@@ -12,6 +12,8 @@ interface GridCell {
     dayNumber: number;
     inMonth: boolean;
     isToday: boolean;
+    /** After today: an empty future tile shows the card-back. */
+    isFuture: boolean;
     url: string;
     noteOnly: boolean;
     card: { name: string; thumbnailUrl: string; suit: Suit | null } | null;
@@ -55,6 +57,8 @@ const props = defineProps<{
     };
     weekdays?: string[];
     weeks?: GridCell[][];
+    /** The card-back placeholder, shown faded on tiles with no card. */
+    cardBackUrl?: string;
     filters?: Filters;
     options?: {
         suits: { value: Suit; label: string }[];
@@ -265,6 +269,13 @@ function resonanceLabel(resonated: boolean | null): string {
                                     :alt="cell.card.name"
                                     loading="lazy"
                                     class="hidden aspect-[3/5] w-full rounded-sm object-cover md:block"
+                                />
+                                <img
+                                    v-else-if="cell.isFuture"
+                                    :src="cardBackUrl"
+                                    alt=""
+                                    aria-hidden="true"
+                                    class="hidden aspect-[3/5] w-full rounded-sm object-cover opacity-30 md:block"
                                 />
                                 <span
                                     class="mt-auto flex flex-wrap gap-0.5 text-[10px] leading-none text-muted"

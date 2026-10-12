@@ -51,6 +51,7 @@ class CalendarController extends Controller
             'month' => $this->monthNavigation($month),
             'weekdays' => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             'weeks' => $this->weeks($month),
+            'cardBackUrl' => asset('images/card-back.svg'),
         ]);
     }
 
@@ -102,6 +103,7 @@ class CalendarController extends Controller
                 'dayNumber' => $cursor->day,
                 'inMonth' => $cursor->month === $month->month,
                 'isToday' => $key === $today,
+                'isFuture' => $key > $today,
                 'url' => $day === null ? route('days.edit', $key) : route('days.show', $key),
                 'noteOnly' => $day !== null && $reading === null,
                 'card' => $reading === null ? null : [

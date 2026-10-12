@@ -120,3 +120,14 @@ it('rejects an unknown suit in the list filters', function () {
         ->get('/calendar/2026/10?view=list&suit=pentacles')
         ->assertSessionHasErrors('suit');
 });
+
+it('flags only the days after today, so only empty future tiles show the card-back', function () {
+    $response = $this->actingAs($this->user)->get('/calendar/2026/10');
+
+    $cells = collect($response->viewData('page')['props']['weeks'])->flatten(1)->keyBy('date');
+
+    expect($cells['2026-10-13']['isFuture'])->toBeTrue()
+        ->and($cells['2026-10-12']['isFuture'])->toBeFalse()
+        ->and($cells['2026-10-11']['isFuture'])->toBeFalse()
+        ->and($response->viewData('page')['props']['cardBackUrl'])->toEndWith('/images/card-back.svg');
+});
