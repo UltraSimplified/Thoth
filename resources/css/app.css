@@ -1,0 +1,108 @@
+@import 'tailwindcss';
+
+@import '@fontsource/marcellus/400.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/*
+ * Semantic theme tokens. Components reference these (via the Tailwind
+ * mapping below) instead of raw colour values, so every theme is just a
+ * different set of values for the same names.
+ */
+:root,
+:root[data-theme='light'] {
+    --bg: #f6f5f9;
+    --surface: #ffffff;
+    --surface-2: #eeecf3;
+    --line: #d9d5e3;
+    --ink: #1c1a24;
+    --muted: #5e5873;
+    --accent: #14121c;
+    --accent-ink: #ffffff;
+    --icon: #5e5873;
+    --danger: #b3261e;
+    --wands: #c2571e;
+    --cups: #2f6fae;
+    --swords: #8c7a12;
+    --disks: #3e7d3b;
+    --majors: #7a55b8;
+}
+
+:root[data-theme='dark'] {
+    --bg: #14121c;
+    --surface: #1e1b29;
+    --surface-2: #272336;
+    --line: #3a3550;
+    --ink: #ede8f5;
+    --muted: #a39db5;
+    --accent: #d8b25c;
+    --accent-ink: #14121c;
+    --icon: #cfc9de;
+    --danger: #ff8a80;
+    --wands: #e8814a;
+    --cups: #5b9bd8;
+    --swords: #d9cb6a;
+    --disks: #74b072;
+    --majors: #b08fe0;
+}
+
+:root[data-theme='goblin'] {
+    --bg: #0d1e14;
+    --surface: #13291c;
+    --surface-2: #1a3424;
+    --line: #24452f;
+    --ink: #d3eedb;
+    --muted: #8fbf9f;
+    --accent: #34d36f;
+    --accent-ink: #0d1e14;
+    --icon: #b9dcc4;
+    --danger: #ffb4a8;
+    --wands: #e8814a;
+    --cups: #5b9bd8;
+    --swords: #d9cb6a;
+    --disks: #74b072;
+    --majors: #b08fe0;
+}
+
+@theme inline {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-line: var(--line);
+    --color-ink: var(--ink);
+    --color-muted: var(--muted);
+    --color-accent: var(--accent);
+    --color-accent-ink: var(--accent-ink);
+    --color-icon: var(--icon);
+    --color-danger: var(--danger);
+    --color-wands: var(--wands);
+    --color-cups: var(--cups);
+    --color-swords: var(--swords);
+    --color-disks: var(--disks);
+    --color-majors: var(--majors);
+
+    --font-sans:
+        'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --font-heading: 'Marcellus', ui-serif, Georgia, serif;
+    --font-mono:
+        'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    :root[data-theme='dark'],
+    :root[data-theme='goblin'] {
+        color-scheme: dark;
+    }
+}

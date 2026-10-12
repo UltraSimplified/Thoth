@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500" role="img" aria-label="Card back">
+  <rect x="6" y="6" width="288" height="488" rx="16" fill="#2a2640" stroke="#8c83a8" stroke-width="4"/>
+  <rect x="26" y="26" width="248" height="448" rx="10" fill="none" stroke="#8c83a8" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="150" cy="250" r="64" fill="none" stroke="#d8b25c" stroke-width="3"/>
+  <path d="M150 196 L162 250 L150 304 L138 250 Z" fill="#d8b25c" opacity="0.85"/>
+</svg>
